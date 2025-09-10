@@ -21,7 +21,7 @@ def send_telegram(msg):
     try:
         r = requests.post(url, data=data)
         if r.status_code == 200:
-            print("[TELEGRAM] ✅ Message envoyé")
+            print("[TELEGRAM] ✅ Message envoyé :", msg[:50])
         else:
             print("[TELEGRAM] ❌ Erreur :", r.text)
     except Exception as e:
@@ -47,9 +47,16 @@ def check_site():
 if __name__ == "__main__":
     while True:
         if check_site():
-            message = "🚨 La billetterie CAF Maroc 2025 est OUVERTE ! 🎟️\n" + URL
+            # Billetterie OUVERTE
+            message = (
+                "🚨🚨🚨 La billetterie CAF Maroc 2025 est OUVERTE !!! 🎟️🔥\n"
+                "👉 " + URL
+            )
             send_telegram(message)
-            break
+            print("OUVERTE 🚨 message envoyé toutes les 15s")
+            time.sleep(15)  # toutes les 15 secondes
         else:
-            print("Encore fermé ⏳... Recheck dans 5 min.")
-        time.sleep(300)  # toutes les 5 minutes
+            # Encore fermée
+            send_telegram("Encore fermé ⏳... Recheck dans 5 min.")
+            print("Encore fermé ⏳ message envoyé, recheck dans 5 min")
+            time.sleep(300)  # toutes les 5 minutes
