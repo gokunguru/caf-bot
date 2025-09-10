@@ -3,7 +3,7 @@ import time
 from bs4 import BeautifulSoup
 from threading import Thread
 from flask import Flask
-
+import os 
 # -------------------------
 # CONFIG
 # -------------------------
@@ -77,5 +77,6 @@ def index():
 if __name__ == "__main__":
     # Lance le bot en thread parallèle
     Thread(target=bot_loop, daemon=True).start()
-    # Démarre Flask
-    app.run(host="0.0.0.0", port=5000)
+    # Render fournit un port via la variable d'environnement PORT
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
