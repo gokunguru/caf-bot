@@ -1,6 +1,8 @@
 import requests
 import time
 from bs4 import BeautifulSoup
+from threading import Thread
+from flask import Flask
 
 # -------------------------
 # CONFIG
@@ -10,7 +12,11 @@ CHECK_TEXT = "Bientôt disponible"
 
 # Telegram
 TELEGRAM_BOT_TOKEN = "8263711226:AAFhzrkQ-7C7gUMpz6sZ33rwFwLRbNhgREw"
-TELEGRAM_CHANNEL = "@cafbotkams"   # canal public
+TELEGRAM_CHANNEL = "@cafbotkams"
+
+# Flask app
+app = Flask(__name__)
+status = "Encore fermé ⏳"
 
 # -------------------------
 # NOTIFICATION TELEGRAM
@@ -42,21 +48,34 @@ def check_site():
         return False
 
 # -------------------------
-# MAIN LOOP
+# BOT LOOP
 # -------------------------
-if __name__ == "__main__":
+def bot_loop():
+    global status
     while True:
         if check_site():
-            # Billetterie OUVERTE
-            message = (
-                "🚨🚨🚨 La billetterie CAF Maroc 2025 est OUVERTE !!! 🎟️🔥\n"
-                "👉 " + URL
-            )
-            send_telegram(message)
+            status = "🚨🚨🚨 La billetterie CAF Maroc 2025 est OUVERTE !!! 🎟️🔥"
+            send_telegram(status + "\n👉 " + URL)
             print("OUVERTE 🚨 message envoyé toutes les 15s")
-            time.sleep(15)  # toutes les 15 secondes
+            time.sleep(15)  # spam toutes les 15 sec
         else:
-            # Encore fermée
+            status = "Encore fermé ⏳"
             send_telegram("Encore fermé ⏳... Recheck dans 5 min.")
             print("Encore fermé ⏳ message envoyé, recheck dans 5 min")
-            time.sleep(300)  # toutes les 5 minutes
+            time.sleep(300)  # toutes les 5 min
+
+# -------------------------
+# FLASK ROUTES
+# -------------------------
+@app.route("/")
+def index():
+    return f"<h1>{status}</h1>"
+
+# -------------------------
+# MAIN
+# -------------------------
+if __name__ == "__main__":
+    # Lance le bot en thread parallèle
+    Thread(target=bot_loop, daemon=True).start()
+    # Démarre Flask
+    app.run(host="0.0.0.0", port=5000)
